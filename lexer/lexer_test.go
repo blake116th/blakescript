@@ -70,6 +70,7 @@ func TestComplexCode(t *testing.T) {
 			{token.Plus, "+"},
 			{token.Id, "y"},
 			{token.Semicolon, ";"},
+			{token.ClosedBrace, "}"},
 			{token.Let, "let"},
 			{token.Id, "result"},
 			{token.Assign, "="},

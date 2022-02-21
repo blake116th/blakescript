@@ -57,24 +57,26 @@ func (l *Lexer) NextToken() token.Token {
 		if isLetter(char) {
 			return l.parseWord(char)
 		}
+		if isDigit(char) {
+			return l.parseNumber(char)
+		}
 		return makeToken(token.Illegal, string(char))
 	}
 }
 
 func (l *Lexer) parseWord(currentChar byte) token.Token {
 	var sb strings.Builder
-
 	sb.WriteByte(currentChar)
 
 	for {
 		nextChar, atEnd := l.peekChar()
 
-		if isLetter(nextChar) && !atEnd {
-			sb.WriteByte(nextChar)
-			l.position++
-		} else {
+		if !isLetter(nextChar) || atEnd {
 			break
 		}
+
+		sb.WriteByte(nextChar)
+		l.position++
 	}
 
 	word := sb.String()
@@ -86,6 +88,24 @@ func (l *Lexer) parseWord(currentChar byte) token.Token {
 	}
 }
 
+func (l *Lexer) parseNumber(currentChar byte) token.Token {
+	var sb strings.Builder
+	sb.WriteByte(currentChar)
+
+	for {
+		nextChar, atEnd := l.peekChar()
+
+		if !isDigit(nextChar) || atEnd {
+			break
+		}
+
+		sb.WriteByte(nextChar)
+		l.position++
+	}
+
+	return makeToken(token.Int, sb.String())
+}
+
 //returns true if it's the last character
 func (l *Lexer) advanceChar() (byte, bool){
 	retVal, atEnd := l.peekChar()
@@ -94,10 +114,6 @@ func (l *Lexer) advanceChar() (byte, bool){
 		l.position++
 	}
 	return byte(retVal), atEnd
-}
-
-func isWhitespace(char byte) bool {
-	return char == ' ' || char == '\t' || char == '\n' || char == '\r'
 }
 
 // peeks at the current character without incrementing the index
@@ -112,6 +128,14 @@ func (l *Lexer) peekChar() (byte, bool){
 
 func isLetter(ch byte) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+}
+
+func isWhitespace(char byte) bool {
+	return char == ' ' || char == '\t' || char == '\n' || char == '\r'
+}
+
+func isDigit(char byte) bool {
+	return '0' <= char && char <= '9'
 }
 
 func makeToken(tokenType token.TokenType, literal string) token.Token {
