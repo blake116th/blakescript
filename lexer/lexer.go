@@ -1,7 +1,10 @@
 package lexer
 
-import "github.com/Appleby43/blakescript/token"
+import (
+	"strings"
 
+	"github.com/Appleby43/blakescript/token"
+)
 
 type Lexer struct {
 	input string
@@ -16,36 +19,92 @@ func New(input string) *Lexer {
 	return l
 }
 
-func (l *Lexer) NextToken() token.Token {
-	char := l.input[l.position]
+var keywords = map[string] token.TokenType {
+	"fn" : token.Function,
+	"let" : token.Let,
+}
 
-	l.position++
-	if (l.position > len(l.input)) {
-		return makeToken(token.EOF, '0')
+func (l *Lexer) NextToken() token.Token {
+	char, atEnd := l.advanceChar()
+
+	if atEnd {
+		return makeToken(token.EOF, string(char))
 	}
 
 	switch char {
 	case '=':
-		return makeToken(token.Assign, char)
+		return makeToken(token.Assign, string(char))
 	case ';':
-		return makeToken(token.Semicolon, char)
+		return makeToken(token.Semicolon, string(char))
 	case '(':
-		return makeToken(token.OpenParen, char)
+		return makeToken(token.OpenParen, string(char))
 	case ')':
-		return makeToken(token.ClosedParen, char)
+		return makeToken(token.ClosedParen, string(char))
 	case ',':
-		return makeToken(token.Comma, char)
+		return makeToken(token.Comma, string(char))
 	case '+':
-		return makeToken(token.Plus, char)
+		return makeToken(token.Plus, string(char))
 	case '{':
-		return makeToken(token.OpenBrace, char)
+		return makeToken(token.OpenBrace, string(char))
 	case '}':
-		return makeToken(token.ClosedBrace, char)
+		return makeToken(token.ClosedBrace, string(char))
 	default:
-		return makeToken(token.Illegal, char)
+		if isLetter(char) {
+			return l.parseWord(char)
+		}
+		return makeToken(token.Illegal, string(char))
 	}
 }
 
-func makeToken(tokenType token.TokenType, ch byte) token.Token {
-	return token.Token{Type: tokenType, Literal: string(ch)}
+func (l *Lexer) parseWord(currentChar byte) token.Token {
+	var sb strings.Builder
+
+	sb.WriteByte(currentChar)
+
+	for {
+		nextChar, atEnd := l.peekChar()
+
+		if isLetter(nextChar) && !atEnd {
+			sb.WriteByte(nextChar)
+			l.position++
+		} else {
+			break
+		}
+	}
+
+	word := sb.String()
+	
+	if tokenType, contains := keywords[word]; contains {
+		return makeToken(tokenType, word)
+	} else {
+		return makeToken(token.Id, word)
+	}
+}
+
+//returns true if it's the last character
+func (l *Lexer) advanceChar() (byte, bool){
+	retVal, atEnd := l.peekChar()
+
+	if !atEnd {
+		l.position++
+	}
+	return byte(retVal), atEnd
+}
+
+// peeks at the current character without incrementing the index
+//returns true if at end of file
+func (l *Lexer) peekChar() (byte, bool){
+	if (l.position > len(l.input) - 1) {
+		return '0', true
+	}
+
+	return l.input[l.position], false
+}
+
+func isLetter(ch byte) bool {
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+}
+
+func makeToken(tokenType token.TokenType, literal string) token.Token {
+	return token.Token{Type: tokenType, Literal: literal}
 }
