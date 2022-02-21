@@ -32,7 +32,8 @@ func TestNextToken(t *testing.T) {
 }
 
 func TestComplexCode(t *testing.T) {
-	input := `let five = 5;
+	input := `
+	let five = 5;
 	let ten = 10;
 	let add = fn(x, y) {
 		x + y;
@@ -52,8 +53,8 @@ func TestComplexCode(t *testing.T) {
 			{token.Semicolon, ";"},
 			{token.Let, "let"},
 			{token.Id, "ten"},
-			{token.Let, "="},
-			{token.Let, "10"},
+			{token.Assign, "="},
+			{token.Int, "10"},
 			{token.Semicolon, ";"},
 			{token.Let, "let"},
 			{token.Id, "add"},

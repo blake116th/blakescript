@@ -27,6 +27,11 @@ var keywords = map[string] token.TokenType {
 func (l *Lexer) NextToken() token.Token {
 	char, atEnd := l.advanceChar()
 
+	//skip whitespace
+	if (isWhitespace(char)) {
+		return l.NextToken()
+	}
+
 	if atEnd {
 		return makeToken(token.EOF, string(char))
 	}
@@ -89,6 +94,10 @@ func (l *Lexer) advanceChar() (byte, bool){
 		l.position++
 	}
 	return byte(retVal), atEnd
+}
+
+func isWhitespace(char byte) bool {
+	return char == ' ' || char == '\t' || char == '\n' || char == '\r'
 }
 
 // peeks at the current character without incrementing the index
