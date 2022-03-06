@@ -92,3 +92,45 @@ func TestComplexCode(t *testing.T) {
 		}
 	}
 }
+
+func TestOperators(t *testing.T) {
+	input := `
+	- 5 + 5 / 123 * foo
+
+	!(113 < 115)
+
+	6 > four
+	`
+
+	expectedResults := []struct {
+		type_ token.TokenType
+		literal string
+		} {
+			{token.Minus, "-"},
+			{token.Int, "5"},
+			{token.Plus, "+"},
+			{token.Int, "5"},
+			{token.Divide, "/"},
+			{token.Int, "123"},
+			{token.Times, "*"},
+			{token.Id, "foo"},
+			{token.Not, "!"},
+			{token.OpenParen, "("},
+			{token.Int, "113"},
+			{token.LessThan, "<"},
+			{token.Int, "115"},
+			{token.ClosedParen, ")"},
+			{token.Int, "6"},
+			{token.GreaterThan, ">"},
+			{token.Id, "four"},
+	}
+
+	lexer := New(input)
+
+	for _, expected := range expectedResults {
+		actual := lexer.NextToken();  
+		if assert.IntEquals(int(actual.Type), int(expected.type_), t) {
+			fmt.Printf("expected %s, got %s with val %s\n", expected.literal, actual.Type.String(), actual.Literal)
+		}
+	}
+}

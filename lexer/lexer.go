@@ -24,6 +24,25 @@ var keywords = map[string] token.TokenType {
 	"let" : token.Let,
 }
 
+//certain tokens can be definitively parsed into tokens if they are only used in one context
+//ex: ( can only be interpreted as an open parentheses, while = could be assignment, or ==, or !=
+var unambiguousCharTokens = map[byte] token.TokenType {
+	'=' : token.Assign,
+	';' : token.Semicolon,
+	'(' : token.OpenParen,
+	')' : token.ClosedParen,
+	',' : token.Comma,
+	'+' : token.Plus,
+	'-' : token.Minus,
+	'*' : token.Times,
+	'/' : token.Divide,
+	'<' : token.LessThan,
+	'>' : token.GreaterThan,
+	'!' : token.Not,
+	'{' : token.OpenBrace,
+	'}' : token.ClosedBrace,
+}
+
 func (l *Lexer) NextToken() token.Token {
 	char, atEnd := l.advanceChar()
 
@@ -36,32 +55,20 @@ func (l *Lexer) NextToken() token.Token {
 		return makeToken(token.EOF, string(char))
 	}
 
-	switch char {
-	case '=':
-		return makeToken(token.Assign, string(char))
-	case ';':
-		return makeToken(token.Semicolon, string(char))
-	case '(':
-		return makeToken(token.OpenParen, string(char))
-	case ')':
-		return makeToken(token.ClosedParen, string(char))
-	case ',':
-		return makeToken(token.Comma, string(char))
-	case '+':
-		return makeToken(token.Plus, string(char))
-	case '{':
-		return makeToken(token.OpenBrace, string(char))
-	case '}':
-		return makeToken(token.ClosedBrace, string(char))
-	default:
-		if isLetter(char) {
-			return l.parseWord(char)
-		}
-		if isDigit(char) {
-			return l.parseNumber(char)
-		}
-		return makeToken(token.Illegal, string(char))
+	tokenType, unambiguous := unambiguousCharTokens[char]
+	if unambiguous {
+		return makeToken(tokenType, string(char))
 	}
+
+	if isLetter(char) {
+		return l.parseWord(char)
+	}
+	
+	if isDigit(char) {
+		return l.parseNumber(char)
+	}
+
+	return makeToken(token.Illegal, string(char))
 }
 
 func (l *Lexer) parseWord(currentChar byte) token.Token {

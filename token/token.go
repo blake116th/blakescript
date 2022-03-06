@@ -16,6 +16,13 @@ const (
 	//operators
 	Assign
 	Plus
+	Minus
+	Not
+	Times
+	Divide
+
+	LessThan
+	GreaterThan
 
 	//Special characters
 	Comma
@@ -46,8 +53,20 @@ func (t TokenType) String() string {
 		return "Assignment"
 	case Plus:
 		return "Plus"
+	case Minus:
+		return "Minus"
+	case Not:
+		return "Not"
+	case Times:
+		return "Times"
 	case Comma:
 		return "Comma"
+	case Divide:
+		return "Divide"
+	case LessThan:
+		return "Less Than"
+	case GreaterThan:
+		return "Greater Than"
 	case Semicolon:
 		return "Semicolon"
 	case OpenParen:
