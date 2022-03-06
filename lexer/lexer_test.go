@@ -8,6 +8,11 @@ import (
 	"github.com/Appleby43/blakescript/token"
 )
 
+type tokenPair struct {
+	type_ token.TokenType
+	literal string
+}
+
 func TestNextToken(t *testing.T) {
 	inpt := "=+(){},;"
 
@@ -42,10 +47,7 @@ func TestComplexCode(t *testing.T) {
 	let result = add(five, ten);
 	`
 
-	expectedResults := []struct {
-		type_ token.TokenType
-		literal string
-		} {
+	expectedResults := []tokenPair {
 			{token.Let, "let"},
 			{token.Id, "five"},
 			{token.Assign, "="},
@@ -83,14 +85,7 @@ func TestComplexCode(t *testing.T) {
 			{token.Semicolon, ";"},
 	}
 
-	lexer := New(input)
-
-	for _, expected := range expectedResults {
-		actual := lexer.NextToken();  
-		if assert.IntEquals(int(actual.Type), int(expected.type_), t) {
-			fmt.Printf("expected %s, got %s with val %s\n", expected.literal, actual.Type.String(), actual.Literal)
-		}
-	}
+	generalLexTest(t, input, expectedResults)
 }
 
 func TestOperators(t *testing.T) {
@@ -102,10 +97,7 @@ func TestOperators(t *testing.T) {
 	6 > four
 	`
 
-	expectedResults := []struct {
-		type_ token.TokenType
-		literal string
-		} {
+	expectedResults := []tokenPair {
 			{token.Minus, "-"},
 			{token.Int, "5"},
 			{token.Plus, "+"},
@@ -125,6 +117,32 @@ func TestOperators(t *testing.T) {
 			{token.Id, "four"},
 	}
 
+	generalLexTest(t, input, expectedResults)
+}
+
+func TestMoreKeywords(t *testing.T) {
+	input := `
+	if (true) { return false } else return 0
+	`
+
+	expectedResults := []tokenPair {
+			{token.If, "if"},
+			{token.OpenParen, "("},
+			{token.True, "true"},
+			{token.ClosedParen, ")"},
+			{token.OpenBrace, "{"},
+			{token.Return, "return"},
+			{token.False, "false"},
+			{token.ClosedBrace, "}"},
+			{token.Else, "else"},
+			{token.Return, "return"},
+			{token.Int, "0"},
+	}
+
+	generalLexTest(t, input, expectedResults)
+}
+
+func generalLexTest(t *testing.T, input string, expectedResults []tokenPair) {
 	lexer := New(input)
 
 	for _, expected := range expectedResults {
@@ -132,5 +150,7 @@ func TestOperators(t *testing.T) {
 		if assert.IntEquals(int(actual.Type), int(expected.type_), t) {
 			fmt.Printf("expected %s, got %s with val %s\n", expected.literal, actual.Type.String(), actual.Literal)
 		}
+
+		assert.StringEquals(actual.Literal, expected.literal, t)
 	}
 }

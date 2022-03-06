@@ -37,6 +37,11 @@ const (
 	//keywords
 	Function
 	Let
+	If
+	Else
+	Return
+	True
+	False
 )
 
 func (t TokenType) String() string {
@@ -81,6 +86,16 @@ func (t TokenType) String() string {
 		return "Function Declaration"
 	case Let:
 		return "Variable Declaration"
+	case If:
+		return "If statement"
+	case Else:
+		return "Else"
+	case Return:
+		return "Return"
+	case True:
+		return "True"
+	case False:
+		return "False"
 	default:
 		log.Fatal("Could not find a string representation for a token")
 		return ""

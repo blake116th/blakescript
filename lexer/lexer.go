@@ -22,6 +22,11 @@ func New(input string) *Lexer {
 var keywords = map[string] token.TokenType {
 	"fn" : token.Function,
 	"let" : token.Let,
+	"true" : token.True,
+	"false" : token.False,
+	"if" : token.If,
+	"else" : token.Else,
+	"return" : token.Return,
 }
 
 //certain tokens can be definitively parsed into tokens if they are only used in one context
