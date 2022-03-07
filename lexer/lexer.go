@@ -147,11 +147,15 @@ func (l *Lexer) advanceChar() (byte, bool){
 // peeks at the current character without incrementing the index
 //returns true if at end of file
 func (l *Lexer) peekChar() (byte, bool){
-	if (l.position > len(l.input) - 1) {
+	if l.AtEnd() {
 		return '0', true
 	}
 
 	return l.input[l.position], false
+}
+
+func (l *Lexer) AtEnd() bool {
+	return l.position > len(l.input) - 1
 }
 
 func isLetter(ch byte) bool {
