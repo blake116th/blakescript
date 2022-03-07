@@ -23,6 +23,8 @@ const (
 
 	LessThan
 	GreaterThan
+	Equals
+	NotEquals
 
 	//Special characters
 	Comma
@@ -72,6 +74,10 @@ func (t TokenType) String() string {
 		return "Less Than"
 	case GreaterThan:
 		return "Greater Than"
+	case Equals:
+		return "Equals"
+	case NotEquals:
+		return "Not Equals"
 	case Semicolon:
 		return "Semicolon"
 	case OpenParen:

@@ -142,6 +142,28 @@ func TestMoreKeywords(t *testing.T) {
 	generalLexTest(t, input, expectedResults)
 }
 
+func TestEqualAndNotEqual(t *testing.T) {
+	input := `
+	left = 3 == 2 
+
+	left != right !
+	`
+
+	expectedResults := []tokenPair {
+			{token.Id, "left"},
+			{token.Assign, "="},
+			{token.Int, "3"},
+			{token.Equals, "=="},
+			{token.Int, "2"},
+			{token.Id, "left"},
+			{token.NotEquals, "!="},
+			{token.Id, "right"},
+			{token.Not, "!"},
+	}
+
+	generalLexTest(t, input, expectedResults)
+}
+
 func generalLexTest(t *testing.T, input string, expectedResults []tokenPair) {
 	lexer := New(input)
 

@@ -32,7 +32,6 @@ var keywords = map[string] token.TokenType {
 //certain tokens can be definitively parsed into tokens if they are only used in one context
 //ex: ( can only be interpreted as an open parentheses, while = could be assignment, or ==, or !=
 var unambiguousCharTokens = map[byte] token.TokenType {
-	'=' : token.Assign,
 	';' : token.Semicolon,
 	'(' : token.OpenParen,
 	')' : token.ClosedParen,
@@ -43,7 +42,6 @@ var unambiguousCharTokens = map[byte] token.TokenType {
 	'/' : token.Divide,
 	'<' : token.LessThan,
 	'>' : token.GreaterThan,
-	'!' : token.Not,
 	'{' : token.OpenBrace,
 	'}' : token.ClosedBrace,
 }
@@ -63,6 +61,24 @@ func (l *Lexer) NextToken() token.Token {
 	tokenType, unambiguous := unambiguousCharTokens[char]
 	if unambiguous {
 		return makeToken(tokenType, string(char))
+	}
+
+	if char == '=' {
+		nextChar, atEnd := l.peekChar()
+		if !atEnd && nextChar == '='  {
+			l.advanceChar()
+			return makeToken(token.Equals, "==")
+		}
+		return makeToken(token.Assign, "=")
+	}
+
+	if char == '!' {
+		nextChar, atEnd := l.peekChar()
+		if !atEnd && nextChar == '='  {
+			l.advanceChar()
+			return makeToken(token.NotEquals, "!=")
+		}
+		return makeToken(token.Not, "!")
 	}
 
 	if isLetter(char) {
