@@ -3,6 +3,8 @@ package assert
 import (
 	"fmt"
 	"testing"
+
+	"github.com/Appleby43/blakescript/ast"
 )
 
 //returns true if the test fails
@@ -23,3 +25,7 @@ func StringEquals(actual string, expected string, t *testing.T) bool {
 	}
 	return false
 }
+
+func ScriptEquals(actual ast.BlakeScript, expected ast.BlakeScript, t *testing.T) {
+	
+} 
