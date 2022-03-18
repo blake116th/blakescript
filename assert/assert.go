@@ -2,6 +2,7 @@ package assert
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/Appleby43/blakescript/ast"
@@ -26,6 +27,11 @@ func StringEquals(actual string, expected string, t *testing.T) bool {
 	return false
 }
 
-func ScriptEquals(actual ast.BlakeScript, expected ast.BlakeScript, t *testing.T) {
-	
+func CodeBlockEquals(actual ast.CodeBlock, expected ast.CodeBlock, t *testing.T) bool {
+	if (!reflect.DeepEqual(actual, expected)) {
+		s := fmt.Sprintf("Actual: %s, Expected: %s (Deep Equality Check)", actual.String(), expected.String())
+		t.Error(s)
+		return true
+	}
+	return false
 } 

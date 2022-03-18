@@ -5,34 +5,47 @@ import (
 	"github.com/Appleby43/blakescript/vm"
 )
 
-type Node interface {
+type Statement interface {
 	fmt.Stringer
-	Execute(env vm.Env)
+	Execute(env vm.Env, scope *CodeBlock)
 }
 
-type BlakeScript struct {
-	children []Node
+//A Codeblock is the basic unit of scope in blakescript 
+type CodeBlock struct {
+	parent *CodeBlock // todo use to ascend scope
+	table vm.ScopeTable
+	Children []Statement
 }
 
-func (bs *BlakeScript) Execute(env vm.Env) {
-	for _, child := range bs.children {
-		child.Execute(env)
+func (cb *CodeBlock) Execute(env vm.Env, scope *CodeBlock) {
+	for _, child := range cb.Children {
+		child.Execute(env, cb)
 	}
 }
 
 type Expression interface {
-	Node
+	fmt.Stringer
 	Evaluate() int
 }
 
+type IntLiteral struct {
+	Expression
+	Value int
+}
+
+func (i *IntLiteral) Evaluate() int {
+	return i.Value
+}
+
 type LetStatement struct {
-	Node
-	id string
+	Statement
+	Id string
 	Expression Expression
 }
 
-func (let *LetStatement) Execute(env vm.Env) {
-	id := env.MakeHeapId()
-	//todo place heap id in scoped table
-	env.Heap[id] = let.Expression.Evaluate();
+func (l *LetStatement) Execute(env vm.Env, scope *CodeBlock) {
+	heapId := env.MakeHeapId()
+
+	env.Heap[heapId] = l.Expression.Evaluate();
+	scope.table[l.Id] = heapId;
 }

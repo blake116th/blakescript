@@ -4,6 +4,7 @@ import "math/rand"
 
 type HeapId int
 type Heap map[HeapId] int
+type ScopeTable map[string] HeapId
 
 //Runtime environment
 type Env struct {
