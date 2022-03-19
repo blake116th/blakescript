@@ -35,3 +35,11 @@ func CodeBlockEquals(actual ast.CodeBlock, expected ast.CodeBlock, t *testing.T)
 	}
 	return false
 } 
+
+func NilError(err error, t *testing.T) bool {
+	if (err != nil) {
+		t.Error(err.Error())
+		return true
+	}
+	return false
+}

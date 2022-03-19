@@ -111,5 +111,6 @@ func (t TokenType) String() string {
 type Token struct {
 	Type TokenType
 	Literal string
+	LineNumber int
 }
 

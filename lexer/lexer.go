@@ -9,12 +9,14 @@ import (
 type Lexer struct {
 	input string
 	position int
+	lineNo int
 }
 
 func New(input string) *Lexer {
 	l := &Lexer{
 		input: input,
 		position: 0,
+		lineNo: 1,
 	}
 	return l
 }
@@ -49,36 +51,41 @@ var unambiguousCharTokens = map[byte] token.TokenType {
 func (l *Lexer) NextToken() token.Token {
 	char, atEnd := l.advanceChar()
 
-	//skip whitespace
-	if (isWhitespace(char)) {
+	//skip whitespace and newlines
+	if isWhitespace(char) {
+		return l.NextToken()
+	}
+
+	if isNewLine(char) {
+		l.lineNo++
 		return l.NextToken()
 	}
 
 	if atEnd {
-		return makeToken(token.EOF, string(char))
+		return l.makeToken(token.EOF, string(char))
 	}
 
 	tokenType, unambiguous := unambiguousCharTokens[char]
 	if unambiguous {
-		return makeToken(tokenType, string(char))
+		return l.makeToken(tokenType, string(char))
 	}
 
 	if char == '=' {
 		nextChar, atEnd := l.peekChar()
 		if !atEnd && nextChar == '='  {
 			l.advanceChar()
-			return makeToken(token.Equals, "==")
+			return l.makeToken(token.Equals, "==")
 		}
-		return makeToken(token.Assign, "=")
+		return l.makeToken(token.Assign, "=")
 	}
 
 	if char == '!' {
 		nextChar, atEnd := l.peekChar()
 		if !atEnd && nextChar == '='  {
 			l.advanceChar()
-			return makeToken(token.NotEquals, "!=")
+			return l.makeToken(token.NotEquals, "!=")
 		}
-		return makeToken(token.Not, "!")
+		return l.makeToken(token.Not, "!")
 	}
 
 	if isLetter(char) {
@@ -89,7 +96,7 @@ func (l *Lexer) NextToken() token.Token {
 		return l.parseNumber(char)
 	}
 
-	return makeToken(token.Illegal, string(char))
+	return l.makeToken(token.Illegal, string(char))
 }
 
 func (l *Lexer) parseWord(currentChar byte) token.Token {
@@ -110,9 +117,9 @@ func (l *Lexer) parseWord(currentChar byte) token.Token {
 	word := sb.String()
 	
 	if tokenType, contains := keywords[word]; contains {
-		return makeToken(tokenType, word)
+		return l.makeToken(tokenType, word)
 	} else {
-		return makeToken(token.Id, word)
+		return l.makeToken(token.Id, word)
 	}
 }
 
@@ -131,7 +138,7 @@ func (l *Lexer) parseNumber(currentChar byte) token.Token {
 		l.position++
 	}
 
-	return makeToken(token.Int, sb.String())
+	return l.makeToken(token.Int, sb.String())
 }
 
 //returns true if it's the last character
@@ -163,13 +170,17 @@ func isLetter(ch byte) bool {
 }
 
 func isWhitespace(char byte) bool {
-	return char == ' ' || char == '\t' || char == '\n' || char == '\r'
+	return char == ' ' || char == '\t' || char == '\r'
+}
+
+func isNewLine(char byte) bool {
+	return char == '\n'
 }
 
 func isDigit(char byte) bool {
 	return '0' <= char && char <= '9'
 }
 
-func makeToken(tokenType token.TokenType, literal string) token.Token {
-	return token.Token{Type: tokenType, Literal: literal}
+func (l *Lexer) makeToken(tokenType token.TokenType, literal string) token.Token {
+	return token.Token{Type: tokenType, Literal: literal, LineNumber: l.lineNo}
 }

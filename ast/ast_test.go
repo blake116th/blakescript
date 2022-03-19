@@ -37,7 +37,8 @@ func TestSimpleStatement(t *testing.T) {
 		},
 	}
 
-	tree := ast.Parse(inpt)
-
+	tree, err := ast.Parse(inpt)
+	
+	assert.NilError(err, t)
 	assert.CodeBlockEquals(tree, expected, t)
 }
