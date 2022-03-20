@@ -25,6 +25,10 @@ func Parse(tokens []token.Token) (CodeBlock, error) {
 		switch tkn.Type {
 			case token.Let:
 				err = p.parseLet(&retVal)
+			case token.Semicolon:
+				// ignore
+			default:
+				return retVal, &UnexpectedTokenError{tkn: tkn}
 		}
 
 		if err != nil {
@@ -108,6 +112,9 @@ func (p *parser) parseExpression() (Expression, error) {
 		}
 
 		return &IntLiteral{Value: val}, nil
+
+	case token.Id:
+		return &IdentifierExpression{Id: p.current().Literal}, nil
 	default:
 		return nil, &ExpectedExpressionError{p.current()}
 	}

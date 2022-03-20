@@ -27,5 +27,5 @@ type ExpectedExpressionError struct {
 }
 
 func (u *ExpectedExpressionError) Error() string {
-	return fmt.Sprintf("Expected expression on line %v, but was unable to handle token \"%v\" ",u.lastTkn.LineNumber, u.lastTkn.Literal)	
+	return fmt.Sprintf("Expected an expression on line %v, and was unable to parse token \"%v\" into an expression.", u.lastTkn.LineNumber, u.lastTkn.Literal)	
 }

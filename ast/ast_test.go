@@ -38,7 +38,31 @@ func TestSimpleStatement(t *testing.T) {
 	}
 
 	tree, err := ast.Parse(inpt)
-	
+
+	assert.NilError(err, t)
+	assert.CodeBlockEquals(tree, expected, t)
+}
+
+func TestAssignments(t *testing.T) {
+	inpt := []tkn.Token {
+		{Type: tkn.Let, Literal: "let"},
+		{Type: tkn.Id, Literal: "b"},
+		{Type: tkn.Assign, Literal: "="},
+		{Type: tkn.Id, Literal: "a"},
+	}
+
+	expected := ast.CodeBlock{
+		Children: []ast.Statement{
+			&ast.LetStatement{
+				Id: "b",
+				Expression: &ast.IdentifierExpression{
+					Id: "a",
+				}},
+		},
+	}
+
+	tree, err := ast.Parse(inpt)
+
 	assert.NilError(err, t)
 	assert.CodeBlockEquals(tree, expected, t)
 }

@@ -14,5 +14,9 @@ func (ls *LetStatement) String() string {
 }
 
 func (i *IntLiteral) String() string {
-	return strconv.Itoa(i.Value, )
+	return strconv.Itoa(i.Value)
+}
+
+func (i *IdentifierExpression) String() string {
+	return i.Id
 }

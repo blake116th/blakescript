@@ -25,7 +25,7 @@ func (cb *CodeBlock) Execute(env vm.Env, scope *CodeBlock) {
 
 type Expression interface {
 	fmt.Stringer
-	Evaluate() int
+	Evaluate(env vm.Env, scope *CodeBlock) int
 }
 
 type IntLiteral struct {
@@ -33,8 +33,17 @@ type IntLiteral struct {
 	Value int
 }
 
-func (i *IntLiteral) Evaluate() int {
+func (i *IntLiteral) Evaluate(env vm.Env, scope *CodeBlock) int {
 	return i.Value
+}
+
+type IdentifierExpression struct {
+	Id string
+}
+
+func (i *IdentifierExpression) Evaluate(env vm.Env, scope *CodeBlock) int {
+	heapId := scope.table[i.Id]
+	return env.Heap[heapId]
 }
 
 type LetStatement struct {
@@ -46,6 +55,6 @@ type LetStatement struct {
 func (l *LetStatement) Execute(env vm.Env, scope *CodeBlock) {
 	heapId := env.MakeHeapId()
 
-	env.Heap[heapId] = l.Expression.Evaluate();
+	env.Heap[heapId] = l.Expression.Evaluate(env, scope);
 	scope.table[l.Id] = heapId;
 }
